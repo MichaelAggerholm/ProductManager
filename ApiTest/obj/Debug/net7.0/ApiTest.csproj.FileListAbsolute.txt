@@ -154,3 +154,4 @@ C:\Users\92agg\RiderProjects\ProductManager\ApiTest\obj\Debug\net7.0\refint\ApiT
 C:\Users\92agg\RiderProjects\ProductManager\ApiTest\obj\Debug\net7.0\ApiTest.pdb
 C:\Users\92agg\RiderProjects\ProductManager\ApiTest\obj\Debug\net7.0\ApiTest.genruntimeconfig.cache
 C:\Users\92agg\RiderProjects\ProductManager\ApiTest\obj\Debug\net7.0\ref\ApiTest.dll
+C:\Users\92agg\RiderProjects\ProductManager\ApiTest\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.InMemory.dll
