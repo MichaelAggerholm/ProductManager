@@ -1,5 +1,5 @@
-﻿using Api.Models;
-using Api.Services;
+﻿using Api.Services;
+using Api.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -16,78 +16,83 @@ public class ProductController : ControllerBase
     }
     
     [HttpGet]
-    public IEnumerable<Product> GetAll()
+    public IEnumerable<ProductDto> GetAll()
     {
-        return _service.GetAll();
+        var products = _service.GetAll();
+        return products.Select(p => new ProductDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Description = p.Description,
+            Price = p.Price,
+            SupplierId = p.Supplier?.Id,
+            CategoryIds = p.Categories?.Select(c => c.Id).ToList() ?? new List<int>()
+        });
     }
+    
     
     [HttpGet("{id}")]
-    public ActionResult<Product> GetById(int id)
+    public ActionResult<ProductDto> GetById(int id)
     {
         var product = _service.GetById(id);
-        
+
         if (product is not null)
         {
-            return product;
+            return new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                SupplierId = product.Supplier?.Id,
+                CategoryIds = product.Categories.Select(c => c.Id).ToList()
+            };
         }
-        else
-        {
-            return NotFound();
-        }
-    }
 
+        return NotFound();
+    }
+    
     [HttpPost]
-    public IActionResult Create(Product newProduct)
+    public IActionResult Create([FromBody] ProductDto productDto)
     {
-        var product = _service.Create(newProduct);
-        return CreatedAtAction(nameof(GetById), new { id = product!.Id }, product);
+        var product = _service.Create(productDto);
+
+        var productToReturn = new ProductDto
+        {
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price,
+            SupplierId = product.Supplier.Id,
+            CategoryIds = product.Categories.Select(c => c.Id).ToList()
+        };
+
+        return CreatedAtAction(nameof(GetById), new { id = product.Id }, productToReturn);
     }
     
-    [HttpPut("{id}/addcategory")]
-    public IActionResult AddCategory(int id, int categoryId)
+
+    [HttpPut("{id}")]
+    public IActionResult Update(int id, [FromBody] ProductDto updatedProduct)
     {
-        var productToUpdate = _service.GetById(id);
-        
-        if (productToUpdate is not null)
+        if (id != updatedProduct.Id)
         {
-            _service.AddCategory(id, categoryId);
-            return NoContent();
+            return BadRequest();
         }
-        else
-        {
-            return NotFound();
-        }
-    }
-    
-    [HttpPut("{id}/updatesupplier")]
-    public IActionResult UpdateSupplier(int id, int supplierId)
-    {
-        var productToUpdate = _service.GetById(id);
-        
-        if (productToUpdate is not null)
-        {
-            _service.UpdateSupplier(id, supplierId);
-            return NoContent();
-        }
-        else
-        {
-            return NotFound();
-        }
+
+        _service.Update(id, updatedProduct);
+
+        return NoContent();
     }
     
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public IActionResult Delete(ProductDto id)
     {
-        var productToDelete = _service.GetById(id);
-        
-        if (productToDelete is not null)
+        if (id is null)
         {
-            _service.DeleteById(id);
-            return Ok();
+            return BadRequest();
         }
-        else
-        {
-            return NotFound();
-        }
+
+        _service.Delete(id);
+
+        return NoContent();
     }
 }

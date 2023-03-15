@@ -1,5 +1,6 @@
 ﻿using Api.Models;
 using Api.Data;
+using Api.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace Api.Services;
@@ -16,6 +17,8 @@ public class ProductService
     public IEnumerable<Product> GetAll()
     {
         return _context.Products
+            .Include(p => p.Supplier)
+            .Include(p => p.Categories)
             .AsNoTracking()
             .ToList();
     }
@@ -29,55 +32,65 @@ public class ProductService
             .SingleOrDefault(p => p.Id == id);
     }
     
-    public Product? Create(Product newProduct)
+    public Product Create(ProductDto productDto)
     {
-        _context.Products.Add(newProduct);
+        var supplier = _context.Suppliers.Find(productDto.SupplierId);
+        var categories = _context.Categories.Where(c => productDto.CategoryIds.Contains(c.Id)).ToList();
+
+        var product = new Product
+        {
+            Name = productDto.Name,
+            Description = productDto.Description,
+            Price = productDto.Price,
+            Supplier = supplier,
+            Categories = categories
+        };
+
+        _context.Products.Add(product);
         _context.SaveChanges();
-        
-        return newProduct;
+
+        return product;
     }
 
-    public void AddCategory(int ProductId, int CategoryId)
+    public void Update(int id, ProductDto updatedProduct)
     {
-        var ProductToUpdate = _context.Products.Find(ProductId);
-        var CategoryToAdd = _context.Categories.Find(CategoryId);
-        
-        if (ProductToUpdate is null || CategoryToAdd is null)
-        {
-            throw new Exception("Product or Category not found");
-        }
+        var product = _context.Products
+            .Include(p => p.Categories)
+            .SingleOrDefault(p => p.Id == id);
 
-        if (ProductToUpdate.Categories is null)
+        if (product != null)
         {
-            ProductToUpdate.Categories = new List<Category>();
-        }
-        
-        ProductToUpdate.Categories.Add(CategoryToAdd);
-        
-        _context.SaveChanges();
-    }
-    
-    public void UpdateSupplier(int ProductId, int SupplierId)
-    {
-        var ProductToUpdate = _context.Products.Find(ProductId);
-        var SupplierToAdd = _context.Suppliers.Find(SupplierId);
-        
-        if (ProductToUpdate is null || SupplierToAdd is null)
-        {
-            throw new Exception("Product or Supplier not found");
-        }
+            // Update scalar properties
+            product.Name = updatedProduct.Name;
+            product.Price = updatedProduct.Price;
+            product.Description = updatedProduct.Description;
+            product.Supplier.Id = updatedProduct.SupplierId;
 
-        ProductToUpdate.Supplier = SupplierToAdd;
-        
-        _context.SaveChanges();
+            // Update categories
+            if (updatedProduct.CategoryIds != null && updatedProduct.CategoryIds.Count > 0)
+            {
+                product.Categories.Clear();
+
+                var categories = _context.Categories
+                    .Where(c => updatedProduct.CategoryIds.Contains(c.Id))
+                    .ToList();
+
+                foreach (var category in categories)
+                {
+                    product.Categories.Add(category);
+                }
+            }
+
+            _context.SaveChanges();
+        }
     }
 
-    public void DeleteById(int id)
+    public void Delete(ProductDto productToDelete)
     {
-        var ProductToDelete = _context.Products.Find(id);
-        if (ProductToDelete is not null)
+        var product = _context.Products.Find(productToDelete.Id);
+        if (product is not null)
         {
-            _context.Products.Remove(ProductToDelete);
+            _context.Products.Remove(product);
             _context.SaveChanges();
         }
     }

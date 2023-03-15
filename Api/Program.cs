@@ -11,8 +11,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSqlite<ProductContext>("Data Source=ProductManager.db");
+builder.Services.AddSqlite<CategoryContext>("Data Source=ProductManager.db");
+builder.Services.AddSqlite<SupplierContext>("Data Source=ProductManager.db");
 
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<SupplierService>();
 
 var app = builder.Build();
 
