@@ -21,9 +21,9 @@ namespace ApiTest.ProductControllerTests
             var context = new ProductContext(options);
             var products = new List<Product>
             {
-                new Product { Id = 1, Name = "Screws", Description = "Screws for construction", Price = 10.00m},
-                new Product { Id = 2, Name = "Flat iron", Description = "Flat iron for cooking", Price = 20.00m },
-                new Product { Id = 3, Name = "Ladder", Description = "Ladder for construction", Price = 30.00m }
+                new Product { Name = "Screws", Description = "Screws for construction", Price = 10.00m},
+                new Product { Name = "Flat iron", Description = "Flat iron for cooking", Price = 20.00m },
+                new Product { Name = "Ladder", Description = "Ladder for construction", Price = 30.00m }
             };
 
             context.Products.AddRange(products);
