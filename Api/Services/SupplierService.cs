@@ -17,33 +17,18 @@ namespace Api.Services
         public IEnumerable<SupplierDto> GetAll()
         {
             var suppliers = _context.Suppliers.AsNoTracking();
-            return suppliers.AsEnumerable().Select(s => new SupplierDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Address = s.Address,
-                ContactPerson = s.ContactPerson,
-                PhoneNumber = s.PhoneNumber,
-                Email = s.Email
-            });
+            return suppliers.AsEnumerable()
+                .Select(s => new SupplierDto(s.Name, s.Address, s.ContactPerson, s.PhoneNumber, s.Email));
         }
 
         // Method GetById that returns a SupplierDto with the given id
-        public SupplierDto GetById(int id)
+        public SupplierDto? GetById(int id)
         {
             var supplier = _context.Suppliers.Find(id);
 
             if (supplier is not null)
             {
-                return new SupplierDto
-                {
-                    Id = supplier.Id,
-                    Name = supplier.Name,
-                    Address = supplier.Address,
-                    ContactPerson = supplier.ContactPerson,
-                    PhoneNumber = supplier.PhoneNumber,
-                    Email = supplier.Email
-                };
+                return (new SupplierDto(supplier.Name, supplier.Address, supplier.ContactPerson, supplier.PhoneNumber, supplier.Email));
             }
 
             return null;

@@ -1,5 +1,4 @@
 using Api.DTO;
-using Api.Models;
 using Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class CategoryController : ControllerBase
 {
-    CategoryService _service;
+    private readonly CategoryService _service;
     
     public CategoryController(CategoryService service)
     {
@@ -29,13 +28,7 @@ public class CategoryController : ControllerBase
 
         if (category is not null)
         {
-            return new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                ProductIds = category.ProductIds.ToList()
-            };
+            return new CategoryDto(category.Name, category.Description);
         }
 
         return NotFound();
@@ -45,13 +38,7 @@ public class CategoryController : ControllerBase
     public IActionResult Create([FromBody] CategoryDto categoryDto)
     {
         var category = _service.Create(categoryDto);
-
-        var categoryToReturn = new CategoryDto
-        {
-            Name = category.Name,
-            Description = category.Description,
-            ProductIds = category.ProductIds.ToList()
-        };
+        var categoryToReturn = new CategoryDto(category.Name, category.Description);
 
         return CreatedAtAction(nameof(GetById), new { id = category.Id }, categoryToReturn);
     }
@@ -70,7 +57,7 @@ public class CategoryController : ControllerBase
     }
     
     [HttpDelete("{id}")]
-    public IActionResult Delete(CategoryDto id)
+    public IActionResult Delete(CategoryDto? id)
     {
         if (id is null)
         {

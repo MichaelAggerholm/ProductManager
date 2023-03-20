@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Api.DTO;
+using Microsoft.EntityFrameworkCore;
 using Api.Models;
 
 namespace Api.Data;
@@ -9,7 +10,7 @@ public class ProductContext : DbContext
     {
     }
 
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Supplier> Suppliers => Set<Supplier>();
+    public DbSet<ProductDto> Products => Set<ProductDto>();
+    public DbSet<CategoryDto> Categories => Set<CategoryDto>();
+    public DbSet<SupplierDto> Suppliers => Set<SupplierDto>();
 }

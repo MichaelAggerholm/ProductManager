@@ -1,5 +1,4 @@
 using Api.DTO;
-using Api.Models;
 using Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,15 +19,7 @@ namespace Api.Controllers
         public IEnumerable<SupplierDto> GetAll()
         {
             var suppliers = _service.GetAll();
-            return suppliers.Select(s => new SupplierDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Address = s.Address,
-                ContactPerson = s.ContactPerson,
-                PhoneNumber = s.PhoneNumber,
-                Email = s.Email
-            });
+            return suppliers.Select(s => new SupplierDto(s.Name, s.Address, s.ContactPerson, s.PhoneNumber, s.Email));
         }
         
         [HttpGet("{id}")]
@@ -38,15 +29,7 @@ namespace Api.Controllers
             
             if (supplier is not null)
             {
-                return new SupplierDto
-                {
-                    Id = supplier.Id,
-                    Name = supplier.Name,
-                    Address = supplier.Address,
-                    ContactPerson = supplier.ContactPerson,
-                    PhoneNumber = supplier.PhoneNumber,
-                    Email = supplier.Email
-                };
+                return new SupplierDto(supplier.Name, supplier.Address, supplier.ContactPerson, supplier.PhoneNumber, supplier.Email);
             }
 
             return NotFound();
@@ -55,23 +38,8 @@ namespace Api.Controllers
         [HttpPost]
         public IActionResult Create(SupplierDto newSupplier)
         {
-            var supplier = _service.Create(new SupplierDto
-            {
-                Name = newSupplier.Name,
-                Address = newSupplier.Address,
-                ContactPerson = newSupplier.ContactPerson,
-                PhoneNumber = newSupplier.PhoneNumber,
-                Email = newSupplier.Email
-            });
-            return CreatedAtAction(nameof(GetById), new { id = supplier.Id }, new SupplierDto
-            {
-                Id = supplier.Id,
-                Name = supplier.Name,
-                Address = supplier.Address,
-                ContactPerson = supplier.ContactPerson,
-                PhoneNumber = supplier.PhoneNumber,
-                Email = supplier.Email
-            });
+            var supplier = _service.Create(new SupplierDto(newSupplier.Name, newSupplier.Address, newSupplier.ContactPerson, newSupplier.PhoneNumber, newSupplier.Email));
+            return CreatedAtAction(nameof(GetById), new { id = supplier.Id }, new SupplierDto(supplier.Name, supplier.Address, supplier.ContactPerson, supplier.PhoneNumber, supplier.Email));
         }
         
         [HttpPut("{id}")]
@@ -81,15 +49,7 @@ namespace Api.Controllers
 
             if (supplierToUpdate is not null)
             {
-                _service.Update(id, new SupplierDto
-                {
-                    Id = updatedSupplier.Id,
-                    Name = updatedSupplier.Name,
-                    Address = updatedSupplier.Address,
-                    ContactPerson = updatedSupplier.ContactPerson,
-                    PhoneNumber = updatedSupplier.PhoneNumber,
-                    Email = updatedSupplier.Email
-                });
+                _service.Update(id, new SupplierDto(updatedSupplier.Name, updatedSupplier.Address, updatedSupplier.ContactPerson, updatedSupplier.PhoneNumber, updatedSupplier.Email));
                 return Ok();
             }
 

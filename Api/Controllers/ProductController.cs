@@ -18,16 +18,7 @@ public class ProductController : ControllerBase
     [HttpGet]
     public IEnumerable<ProductDto> GetAll()
     {
-        var products = _service.GetAll();
-        return products.Select(p => new ProductDto
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Description = p.Description,
-            Price = p.Price,
-            SupplierId = p.Supplier?.Id,
-            CategoryIds = p.Categories?.Select(c => c.Id).ToList() ?? new List<int>()
-        });
+        return _service.GetAll();
     }
     
     
@@ -38,15 +29,7 @@ public class ProductController : ControllerBase
 
         if (product is not null)
         {
-            return new ProductDto
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                SupplierId = product.Supplier?.Id,
-                CategoryIds = product.Categories.Select(c => c.Id).ToList()
-            };
+            return _service.MapToDto(product);
         }
 
         return NotFound();
@@ -55,18 +38,11 @@ public class ProductController : ControllerBase
     [HttpPost]
     public IActionResult Create([FromBody] ProductDto productDto)
     {
-        var product = _service.Create(productDto);
+        var createdProduct = _service.Create(productDto);
 
-        var productToReturn = new ProductDto
-        {
-            Name = product.Name,
-            Description = product.Description,
-            Price = product.Price,
-            SupplierId = product.Supplier.Id,
-            CategoryIds = product.Categories.Select(c => c.Id).ToList()
-        };
+        var createdProductDto = new ProductDto(createdProduct.Name, createdProduct.Description, createdProduct.Price);
 
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, productToReturn);
+        return CreatedAtAction(nameof(GetById), new { id = createdProduct.Id }, createdProductDto);
     }
     
 
@@ -84,7 +60,7 @@ public class ProductController : ControllerBase
     }
     
     [HttpDelete("{id}")]
-    public IActionResult Delete(ProductDto id)
+    public IActionResult Delete(ProductDto? id)
     {
         if (id is null)
         {

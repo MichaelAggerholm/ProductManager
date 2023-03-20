@@ -8,5 +8,12 @@ public class CategoryDto
     
     public string Description { get; set; }
     
-    public List<int> ProductIds { get; set; }
+    public List<ProductDto> Products { get; set; }
+    
+    public CategoryDto(string name, string description)
+    {
+        Name = name;
+        Description = description;
+        Products = new List<ProductDto>();
+    }
 }

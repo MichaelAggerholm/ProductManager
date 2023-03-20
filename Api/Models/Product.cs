@@ -15,8 +15,16 @@ public class Product
     [DataType(DataType.Currency)]
     public decimal Price { get; set; }
 
-    public Supplier? Supplier { get; set; }
+    public Supplier Supplier { get; set; }
 
-    public ICollection<Category> Categories { get; set; }
+    public List<Category> Categories { get; set; }
     
+    public Product(string name, string description, decimal price, Supplier supplier, List<Category> categories)
+    {
+        Name = name;
+        Description = description;
+        Price = price;
+        Supplier = supplier;
+        Categories = categories;
+    }
 }

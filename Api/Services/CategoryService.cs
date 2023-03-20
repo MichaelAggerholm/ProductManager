@@ -1,5 +1,4 @@
 ﻿using Api.DTO;
-using Api.Models;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,91 +13,77 @@ namespace Api.Services
             _context = context;
         }
 
+        private static CategoryDto MapToDto(CategoryDto categoryDto)
+        {
+            return new CategoryDto(categoryDto.Name, categoryDto.Description);
+        }
+
         public IEnumerable<CategoryDto> GetAll()
         {
             return _context.Categories
-                .AsNoTracking()
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    ProductIds = c.Products.Select(p => p.Id).ToList()
-                })
+                .AsNoTracking().AsEnumerable()
+                .Select(MapToDto)
                 .ToList();
         }
 
-        public CategoryDto GetById(int id)
+        public CategoryDto? GetById(int id)
         {
             return _context.Categories
                 .AsNoTracking()
-                .Where(c => c.Id == id)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    ProductIds = c.Products.Select(p => p.Id).ToList()
-                })
+                .Where(c => c.Id == id).AsEnumerable()
+                .Select(MapToDto)
                 .SingleOrDefault();
         }
 
         public CategoryDto Create(CategoryDto newCategoryDto)
         {
-            var newCategory = new Category
-            {
-                Name = newCategoryDto.Name,
-                Description = newCategoryDto.Description
-            };
+            // Opret en ny instans af Category-klassen og tildel dens egenskaber værdierne fra CategoryDto-objektet
+            var newCategory = new CategoryDto(newCategoryDto.Name, newCategoryDto.Description);
 
             _context.Categories.Add(newCategory);
             _context.SaveChanges();
 
             newCategoryDto.Id = newCategory.Id;
-            newCategoryDto.ProductIds = new List<int>();
+            newCategoryDto.Products = new List<ProductDto>();
 
             return newCategoryDto;
         }
 
-        public void Update(int id, CategoryDto updatedCategory)
+        public void Update(int id, CategoryDto updatedCategoryDto)
         {
             var category = _context.Categories
-                .Include(p => p.Products)
+                .Include(c => c.Products)
                 .SingleOrDefault(c => c.Id == id);
 
-            if (category != null)
+            if (category == null) return;
+            // Update scalar properties
+            category.Name = updatedCategoryDto.Name;
+            category.Description = updatedCategoryDto.Description;
+
+            // Update Products
+            if (updatedCategoryDto.Products.Count > 0)
             {
-                // Update scalar properties
-                category.Name = updatedCategory.Name;
-                category.Description = updatedCategory.Description;
+                category.Products?.Clear();
 
-                // Update Products
-                if (updatedCategory.ProductIds != null && updatedCategory.ProductIds.Count > 0)
+                var products = _context.Products
+                    .Where(p => updatedCategoryDto.Products.Any(cp => cp.Id == p.Id)).ToList();
+
+                foreach (var product in products)
                 {
-                    category.Products.Clear();
-
-                    var products = _context.Products
-                        .Where(p => updatedCategory.ProductIds.Contains(p.Id))
-                        .ToList();
-
-                    foreach (var product in products)
-                    {
-                        category.Products.Add(product);
-                    }
+                    category.Products?.Add(product);
                 }
-
-                _context.SaveChanges();
             }
+
+            _context.SaveChanges();
         }
 
-        public void Delete(CategoryDto categoryToDelete)
+        public void Delete(CategoryDto? categoryToDelete)
         {
+            if (categoryToDelete == null) return;
             var category = _context.Categories.Find(categoryToDelete.Id);
-            if (category is not null)
-            {
-                _context.Categories.Remove(category);
-                _context.SaveChanges();
-            }
+            if (category is null) return;
+            _context.Categories.Remove(category);
+            _context.SaveChanges();
         }
     }
 }

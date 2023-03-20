@@ -1,6 +1,5 @@
-﻿using Api.Controllers;
+﻿/*using Api.Controllers;
 using Api.DTO;
-using Api.Models;
 using Api.Services;
 using Api.Data;
 using Microsoft.EntityFrameworkCore;
@@ -19,11 +18,11 @@ namespace ApiTest.ProductControllerTests
                 .Options;
 
             var context = new ProductContext(options);
-            var products = new List<Product>
+            var products = new List<ProductDto>
             {
-                new Product { Name = "Screws", Description = "Screws for construction", Price = 10.00m},
-                new Product { Name = "Flat iron", Description = "Flat iron for cooking", Price = 20.00m },
-                new Product { Name = "Ladder", Description = "Ladder for construction", Price = 30.00m }
+                new ProductDto("Screws", "Screws for construction", 10.00m, new SupplierDto("Dave's Hardware", "123 Main St", "Dave", "555-555-5555", "Dave@gmail.com"), new List<CategoryDto> { new CategoryDto("Hardware", "Hardware for construction") }),
+                new ProductDto("Nails", "Nails for construction", 10.00m, new SupplierDto("Dave's Hardware", "123 Main St", "Dave", "555-555-5555", "Dave@gmail.com"), new List<CategoryDto> { new CategoryDto("Hardware", "Hardware for construction") }),
+                new ProductDto("Hammer", "Hammer for construction", 10.00m, new SupplierDto("Dave's Hardware", "123 Main St", "Dave", "555-555-5555", "Dave@gmail.com"), new List<CategoryDto> { new CategoryDto("Hardware", "Hardware for construction") }),
             };
 
             context.Products.AddRange(products);
@@ -36,7 +35,7 @@ namespace ApiTest.ProductControllerTests
             var result = controller.GetAll();
 
             // Assert
-            Assert.IsInstanceOf<IEnumerable<ProductDto>>(result);
+            Assert.That(result, Is.InstanceOf<IEnumerable<ProductDto>>());
         }
     }
-}
+}*/

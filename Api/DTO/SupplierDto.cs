@@ -1,11 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using Api.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Api.DTO
 {
     public class SupplierDto
     {
-        public int? Id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -23,5 +25,14 @@ namespace Api.DTO
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+        
+        public SupplierDto(string name, string address, string contactPerson, string phoneNumber, string email)
+        {
+            Name = name;
+            Address = address;
+            ContactPerson = contactPerson;
+            PhoneNumber = phoneNumber;
+            Email = email;
+        }
     }
 }
